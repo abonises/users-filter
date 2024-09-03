@@ -1,0 +1,20 @@
+header {
+  width: 100%;
+}
+
+.logo-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  &__logo {
+    color: #535bf2;
+    font-weight: bold;
+    font-size: 2.5rem;
+  }
+
+  &__icon {
+    font-size: 2.2rem;
+  }
+}
