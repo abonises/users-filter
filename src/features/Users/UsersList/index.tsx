@@ -4,11 +4,10 @@ import './index.scss'
 import { useEffect, useState} from "react";
 import {fetchUsers, getUsersStatus, usersError, selectAllUsers} from "../usersSlice.ts";
 import {useAppDispatch, useAppSelector} from "../../../app/hooks.ts";
-import {UnknownAction} from "@reduxjs/toolkit";
 
 
 const Index = () => {
-    const dispatch = useAppDispatch();
+    const dispatch = useAppDispatch<any>();
     const usersList: User[] = useAppSelector(selectAllUsers)
     const usersStatus: string = useAppSelector(getUsersStatus);
     const error: string | null = useAppSelector(usersError);
@@ -17,7 +16,7 @@ const Index = () => {
     const [searchInput, setSearchInput] = useState<string>('');
 
     useEffect(() => {
-        dispatch(fetchUsers() as UnknownAction);
+        dispatch(fetchUsers());
     }, [dispatch]);
 
     let filteredUsers: User[];
@@ -31,10 +30,10 @@ const Index = () => {
 
         searchSelect !== 'phone' ?
             filteredUsers = usersList.filter(user =>
-                user[searchSelect].toLowerCase().startsWith(searchInput.toLowerCase())
+                (user[searchSelect as keyof User] as string).toLowerCase().startsWith(searchInput.toLowerCase())
             ) :
             filteredUsers = usersList.filter(user =>
-                user[searchSelect].toLowerCase().includes(searchInput.toLowerCase())
+                (user[searchSelect as keyof User] as string).toLowerCase().includes(searchInput.toLowerCase())
             );
 
         content = filteredUsers.map((user: User) => (

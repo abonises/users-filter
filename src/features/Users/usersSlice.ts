@@ -1,4 +1,4 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import {createSlice, createAsyncThunk, PayloadAction} from "@reduxjs/toolkit";
 import axios from 'axios';
 import { RootState } from '../../app/store';
 import {User} from "../../../models/models.ts";
@@ -7,7 +7,7 @@ const USERS_URL = 'https://jsonplaceholder.typicode.com/users'
 
 type UsersState = {
     users: User[],
-    status: 'idle' | 'pending' | 'succeeded' | 'failed'
+    status: 'idle' | 'loading' | 'succeeded' | 'failed'
     error: string | null
 }
 
@@ -17,37 +17,40 @@ const initialState: UsersState = {
     error: null
 }
 
-export const fetchUsers = createAsyncThunk('users/fetchUsers', async () => {
+export const fetchUsers = createAsyncThunk<User[], void>('users/fetchUsers', async () => {
     try {
         const response = await axios.get(USERS_URL);
-        return [...response.data] as User[];
-
+        return response.data as User[];
     } catch (err) {
-        return err.message;
+        if (axios.isAxiosError(err)) {
+            throw new Error(err.message);
+        } else {
+            throw new Error('An unknown error occurred');
+        }
     }
-})
-type UsersReducers = {
+});
 
-}
 
-const usersSlice = createSlice<UsersState, UsersReducers>({
-    name: "users",
+
+// @ts-ignore
+const usersSlice = createSlice({
+    name: 'users',
     initialState,
     reducers: {
 
     },
     extraReducers(builder) {
         builder
-            .addCase(fetchUsers.pending, (state: RootState) => {
+            .addCase(fetchUsers.pending, (state: UsersState) => {
                 state.status = 'loading'
             })
-            .addCase(fetchUsers.fulfilled, (state: RootState, action) => {
+            .addCase(fetchUsers.fulfilled, (state: UsersState, action: PayloadAction<User[]>) => {
                 state.status = 'succeeded'
                 state.users = action.payload;
             })
-            .addCase(fetchUsers.rejected, (state: RootState, action) => {
+            .addCase(fetchUsers.rejected, (state: UsersState, action) => {
                 state.status = 'failed'
-                state.error = action.error.message
+                state.error = action.error.message || 'Unknown error occurred';
             })
     }
 })

@@ -1,4 +1,3 @@
-import {useEffect, useState} from "react";
 import './style/style.scss'
 import HeaderComponent from "./components/HeaderComponent";
 import UsersList from "./features/Users/UsersList";
